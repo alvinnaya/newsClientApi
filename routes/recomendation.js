@@ -10,30 +10,36 @@ router.get('/getRecomendation/:id', async (req, res) => {
     try {
         const id = req.params.id;
         const query = `
-            SELECT article_tags.article_id, articles.article_id, article_tags.tag_id, tags.name 
-            FROM article_tags 
-            INNER JOIN articles ON articles.article_id = article_tags.article_id 
-            INNER JOIN tags ON article_tags.tag_id = tags.id 
-            WHERE articles.article_id = $1
+        WITH articleTags AS (
+          SELECT tag_id
+          FROM article_tags
+          WHERE article_id = $1
+        )
+        
+        SELECT
+          a.article_id,
+          COUNT(article_tags.article_id) AS tag_count
+          
+        FROM
+          articleTags
+         JOIN article_tags ON article_tags.tag_id = articleTags.tag_id
+         right JOIN articles a ON article_tags.article_id = a.article_id
+        WHERE
+          a.article_id != $1
+        GROUP BY
+          a.title,
+          a.article_id,
+          article_tags.article_id
+        ORDER BY 
+          tag_count DESC;
+        
         `;
 
         const { rows } = await pool.query(query, [id]);
-        console.log(rows[0]);
+        console.log('rows',rows);
 
-        const tagIds = rows.map(row => row.tag_id);
-        
-        const sql = `
-            SELECT * FROM article_tags
-            WHERE tag_id = ANY($1)
-        `;
+        const mostData = rows.map(item => item.article_id);
 
-        const { rows: rows2 } = await pool.query(sql, [tagIds]);
-        console.log(rows2);
-
-        const filteredRows2 = rows2.filter(item => item.article_id !== parseInt(id));
-        console.log(filteredRows2);
-
-        const mostData = await mostDataFreq.getMostFreqData(filteredRows2, 'article_id');
         console.log(mostData);
 
         res.status(201).json(mostData);
@@ -48,7 +54,11 @@ router.get('/getRecomendation/:id', async (req, res) => {
 router.get('/getArticles', async (req, res) => {
     try {
       const ids = req.query.ids.split(',').map(Number); // Mengambil dan konversi array ID dari query parameter "ids" dalam URL
-      const queryIds = 'SELECT * FROM articles WHERE article_id = ANY($1)';
+      console.log(ids)
+      const queryIds = `SELECT *
+      FROM articles
+      WHERE article_id = ANY($1)
+      ORDER BY array_position($1,article_id);`;
       const { rows } = await pool.query(queryIds, [ids]);
       console.log('Artikel yang ditemukan:', rows);
 

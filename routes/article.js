@@ -145,8 +145,8 @@ router.post('/create',verifyToken, async (req, res) => {
         const insertedRow = article.rows[0]; // Mendapatkan baris pertama (dalam hal ini, satu baris saja)
         const newArticleId = insertedRow.id; // Mendapatkan nilai ID dari baris yang baru saja dimasukkan
         console.log(newArticleId);
-        const query2 = 'INSERT INTO article_tags (article_id, tag_id) VALUES ($1, $2)';
-        await pool.query(query2, [newArticleId,10]);
+        // const query2 = 'INSERT INTO article_tags (article_id, tag_id) VALUES ($1, $2)';
+        // await pool.query(query2, [newArticleId,10]);
         res.status(201).json(insertedRow);
       }else{
         res.status(500).json({ error: 'artikel gagal dibuat' });
@@ -375,6 +375,45 @@ router.post('/create',verifyToken, async (req, res) => {
           await pool.query(query2, [title, content, writerId, id, url_image, descrip]);
           const query = 'UPDATE articles_draft SET status = true WHERE id = $1';
           await pool.query(query, [id]);
+      
+          res.status(201).json({ message: 'article diupdate' });
+        }else{
+          res.status(500).json({ error: 'artikel gagal dibuat' });
+        }
+      } catch (error) {
+        console.error('Error saat mendaftar', error);
+        res.status(500).json({ error: 'artikel gagal dibuat' });
+      }
+    });
+
+    router.post('/updatePublish',verifyToken, async (req, res) => {
+      try {
+        const tokenHeaderKey = "jwt-token";
+        const { id } = req.body;
+        const data =JSON.parse(req.headers[tokenHeaderKey]);
+        console.log('publish',id)
+        const writer_id = data.id
+        const queryId = 'SELECT * FROM articles_draft WHERE id = $1';
+        const { rows } = await pool.query(queryId, [id]);
+        const writerId = rows[0].writer_id
+        const content = rows[0].content
+        const title = rows[0].title
+        const url_image = rows[0].url_image
+        const descrip = rows[0].descrip
+        
+    
+        if (writer_id == writerId) {
+          const query2 =`UPDATE articles
+          SET
+            title = $1,
+            content = $2,
+            writer_id = $3,
+            url_image = $5,
+            Descrip = $6
+          WHERE
+            article_id = $4;
+          `
+          await pool.query(query2, [title, content, writerId, id, url_image, descrip]);
       
           res.status(201).json({ message: 'article diupdate' });
         }else{
