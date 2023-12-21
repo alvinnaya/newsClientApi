@@ -17,7 +17,7 @@ router.get('/',WriterLogin, (req, res) => {
   router.post('/createTag', async (req, res) => {
     try {
       const {Tagname } = req.body;
-  
+  z
       const query = 'INSERT INTO tags (name) VALUES ($1)';
       await pool.query(query, [Tagname]);
   

@@ -2,19 +2,24 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 
 const app = express();
 
+
 // Set konfigurasi CORS sesuai kebutuhan Anda
 const corsOptions = {
-  origin: 'http://localhost:3001', // Ganti dengan URL asal aplikasi Anda
+  origin: ['http://localhost:3002','http://localhost:3001','https://192.168.1.6'], // Ganti dengan URL asal aplikasi Anda
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
+
 
 // ... kode lainnya ...
 
@@ -33,6 +38,8 @@ const imageRoutes = require('./routes/imageUpload');
 const metadataRoute = require('./routes/metadataRoute');
 const rekomen = require('./routes/recomendation');
 const ads = require('./routes/ads');
+const pool = require('./db');
+pool.connect()
 app.use('/api/writer', writerRoutes);
 app.use('/api/article', articleRoutes);
 app.use('/api/admin', adminRoutes);
@@ -41,7 +48,9 @@ app.use('/api/metadata', metadataRoute);
 app.use('/api/recomendation', rekomen);
 app.use('/api/ads', ads);
 
-  
+app.get('/',(req, res) => {
+  res.status(201).json({ message: 'halo ini adalah api project-f' });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

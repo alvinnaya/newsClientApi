@@ -7,6 +7,7 @@ router.get('/getMetadata', async (req, res) => {
   const { url } = req.query;
 
   try {
+    await pool.connect();
     const metadata = await metadataController.getMetadata(url);
     res.json(metadata);
   } catch (error) {
@@ -18,6 +19,7 @@ router.get('/getParagraph', async (req, res) => {
   const { url } = req.query;
 
   try {
+    await pool.connect();
     const metadata = await metadataController.getParagraphs(url);
     res.json(metadata);
   } catch (error) {

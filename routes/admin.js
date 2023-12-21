@@ -43,12 +43,35 @@ router.post('/register', async (req, res) => {
     try {
       const { nama, username, password } = req.body;
      
-      console.log(nama,username,password)
+      
   
       const hashedPassword = await bcrypt.hash(password, 10); // Hash password
   
       const query = 'INSERT INTO Admin (nama, username, password) VALUES ($1, $2, $3)';
+      
       await pool.query(query, [nama, username, hashedPassword]);
+
+
+      const query2 = 'SELECT * FROM Admin WHERE username = $1';
+      const { rows } = await pool.query(query2, [username]);
+  
+      if (rows.length === 0) {
+        return res.status(401).json({ error: 'Username atau password salah' });
+      }
+  
+      const user = rows[0];
+      console.log(user)
+  
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Username atau password salah' });
+      }
+      const token = generateToken(user.id);
+      // localStorage.setItem('accessToken', data.token);
+      const age = 1000*3600*24
+      res.cookie('token', token, { httpOnly: true, maxAge: age });
+      return res.status(401).json({ 'token': token, 'id': user.id });
+      
   
       res.status(201).json({ message: 'Pengguna terdaftar' });
     } catch (error) {
