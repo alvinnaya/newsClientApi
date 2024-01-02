@@ -6,6 +6,7 @@ const verifyToken = require('../verify/writerLogin');
 const verifyTokenAdmin = require('../verify/adminLogin');
 const pool = require('../db'); // Import koneksi database
 const bcrypt = require('bcrypt');
+const dotenv = require('dotenv');
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ router.post('/upload',verifyToken,  upload.single('image'), async (req, res) => 
     }
 
     const imageName = req.file.filename;
-    const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+    const imageUrl = `http://${process.env.API_URL}/uploads/${req.file.filename}`;
 
     const insertQuery = 'INSERT INTO gambar (name_image, url_image) VALUES ($1, $2) RETURNING id, name_image, url_image';
     const result = await pool.query(insertQuery, [imageName, imageUrl]);
@@ -86,7 +87,7 @@ router.post('/upload/writer',verifyToken,  upload.single('image'), async (req, r
     const data =JSON.parse(req.headers[tokenHeaderKey]);
     const writer_id = data.id
     const image_name = req.file.filename
-    const imageUrl = `http://localhost:3000/uploads/${image_name}`;
+    const imageUrl = `http://${process.env.API_URL}/uploads/${image_name}`;
 
     const insertQuery = 'INSERT INTO profile_images (writer_id, image_url,image_name) VALUES ($1, $2, $3)' ;
     const result = await pool.query(insertQuery, [writer_id, imageUrl, image_name]);
@@ -145,7 +146,7 @@ router.post('/upload/ads',verifyTokenAdmin,  upload.single('image'), async (req,
     const data =JSON.parse(req.headers[tokenHeaderKey]);
     const admin_id = data.id
     const image_name = req.file.filename
-    const imageUrl = `http://localhost:3000/uploads/${image_name}`;
+    const imageUrl = `http://${process.env.API_URL}/uploads/${image_name}`;
 
     const insertQuery = 'INSERT INTO ads_image (admin_id, url_image,name_image) VALUES ($1, $2, $3) RETURNING id, admin_id, url_image,name_image' ;
     const {rows} = await pool.query(insertQuery, [admin_id, imageUrl, image_name]);
