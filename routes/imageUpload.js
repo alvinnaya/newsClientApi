@@ -29,7 +29,7 @@ router.post('/upload',verifyToken,  upload.single('image'), async (req, res) => 
     }
 
     const imageName = req.file.filename;
-    const imageUrl = `http://${process.env.API_URL}/uploads/${req.file.filename}`;
+    const imageUrl = `http://${process.env.API_URL}/uploads/${req.file.filename}.png`;
 
     const insertQuery = 'INSERT INTO gambar (name_image, url_image) VALUES ($1, $2) RETURNING id, name_image, url_image';
     const result = await pool.query(insertQuery, [imageName, imageUrl]);
