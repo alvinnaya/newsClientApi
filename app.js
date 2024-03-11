@@ -25,8 +25,19 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 
+app.use('/uploads/:gambar', (req, res, next) => {
+  // Jika URL tidak memiliki nama file
+  const { gambar } = req.params;
+  if (!gambar.includes('.')) {
+    // Tambahkan nama file default
+    res.redirect(+ gambar+'.png');
+  } else {
+    // Lanjutkan ke middleware berikutnya
+    next();
+  }
+});
 
-app.use('/uploads',express.static('uploads'))
+app.use('/uploads', express.static('uploads'));
 // Impor berkas route
 const writerRoutes = require('./routes/writer');
 const articleRoutes = require('./routes/article');
