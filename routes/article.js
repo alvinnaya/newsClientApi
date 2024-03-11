@@ -82,7 +82,9 @@ router.get('/getallArticle', async(req, res)=>{
     const page = req.query.page || 1; // Halaman yang diminta
     const perPage = req.query.perPage || 10; // Jumlah item per halaman
     const offset = (page - 1) * perPage; 
-    const queryIds = 'SELECT * FROM articles LIMIT $1 OFFSET $2';
+    const queryIds = `SELECT * FROM articles
+    ORDER BY created_at DESC
+    LIMIT $1 OFFSET $2`;
     const { rows } = await pool.query(queryIds, [perPage, offset]);
     console.log('Artikel yang ditemukan:', rows);
 
