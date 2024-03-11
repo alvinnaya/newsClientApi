@@ -12,14 +12,11 @@ const app = express();
 
 // Set konfigurasi CORS sesuai kebutuhan Anda
 const corsOptions = {
-  origin: ['http://localhost:3002','http://localhost:3001','https://192.168.1.6'], // Ganti dengan URL asal aplikasi Anda
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  optionsSuccessStatus: 204,
+  origin: '*',
 };
 
 app.use(cors(corsOptions));
-
+app.options('*', cors(corsOptions));
 
 // ... kode lainnya ...
 
