@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
     cb(null, 'uploads'); // Menyimpan gambar di dalam folder "uploads"
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    cb(null, Date.now() + path.extname(file.originalname)+ '.png');
   },
 });
 
